@@ -13,6 +13,7 @@ Import-PSSession $exchangeSession -DisableNameChecking -AllowClobber
 
 Connect-MsolService
 
+function Run-Toolbox {
 function Create-User
 {
     #Populate Variables used in the new user creation. This is based on how we structure our names, and how we have our OU's broken up. You will have to edit this to your needs
@@ -64,9 +65,15 @@ function ReEnable-UserAccess
 function Disable-UserAccess
 {$identity = Read-Host "Enter the username of the persons mailbox you would like to convert to shared"
  Set-RemoteMailbox -Identity $identity -Type shared
-
- 
  Set-MsolUserLicense -UserPrincipalName "$identity@yourdomain.com" -RemoveLicenses "<Your License SKU here>"
+ 
+ function Approve-MobileDevice
+{$identity = Read-Host "Enter username, such as bob.joe"
+Get-MobileDevice -Mailbox $identity | fl FriendlyName, Identity, DeviceAccessState, DeviceID 
+"Copy the the DeviceId of the quarantined phone for the next part"
+$deviceID = Read-host "paste DeviceID here"
+Set-CASMailbox -identity $identity -ActiveSyncAllowedDeviceIDs @{add= $deviceID}
+}
  }
 
 
@@ -75,13 +82,15 @@ Switch(Read-Host 'Select "1" if you would like to create a new on-Prem O365 mail
        "3" to disable OOO for a user, `
        "4" to disable user access (convert mailbox to shared and remove E3 license), 
        "5" to re-enable user access (Convert mailbox to regular and assign E3 license), 
-       "6" to exit') {
+       "6" to Approve a Mobile device in quarantine
+       "7" to exit') {
 
    1{Create-User}
    2{Enable-OOO}
    3{Disable-OOO}
    4{Disable-UserAccess}
    5{ReEnable-UserAccess}
-   6{exit}
+   6{Approve-MobileDevice}
+   7{exit}
 }
-
+}
