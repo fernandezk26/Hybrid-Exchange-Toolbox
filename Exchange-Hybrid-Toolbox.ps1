@@ -74,7 +74,7 @@ function Disable-UserAccess
 {$identity = Read-Host "Enter username, such as bob.joe"
 Get-MobileDevice -Mailbox $identity | fl FriendlyName, Identity, DeviceAccessState, DeviceID 
 "Copy the the DeviceId of the quarantined phone for the next part"
-$deviceID = Read-host "paste DeviceID here"
+$deviceID = Read-host "Copy the the DeviceId of the quarantined phone and paste DeviceID here"
 Set-CASMailbox -identity $identity -ActiveSyncAllowedDeviceIDs @{add= $deviceID}
 }
  }
