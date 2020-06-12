@@ -97,3 +97,15 @@ Switch(Read-Host 'Select "1" if you would like to create a new on-Prem O365 mail
    7{exit}
 }
 }
+
+
+
+#Test and add later
+7{Delegate-Mailbox}
+
+function Delegate-Mailbox {
+$identity = Read-Host "Enter the username of the user whos mailbox you want to delegate
+$trustee = Read-Host "Enter the username of the trustee (person who is getting access)
+Add-RecipientPermission -Identity $identity -Trustee $trustee -AccessRights SendAs
+}
+
