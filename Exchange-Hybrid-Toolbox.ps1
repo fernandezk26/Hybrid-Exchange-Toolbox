@@ -50,11 +50,6 @@ function Disable-OOO
 {$identity = Read-Host "Enter the username of the person you would like to turn OOO off for" 
  Set-MailboxAutoReplyConfiguration -Identity $identity -AutoReplyState Disabled}
 
-function Convert-Mailbox-Shared
-{$identity = Read-Host "Enter the username of the persons mailbox you would like to convert to shared"
- Set-RemoteMailbox -Identity $identity -Type shared}
-
-
 #You will have to get your own license SKU's by running the Get-MsolAccountSku command. From there you can specify which licenses you would like to remove
 #This applies to the EnableUserAccess and Disable-UserAccessfunctions
 
@@ -70,7 +65,7 @@ function Disable-UserAccess
  Set-RemoteMailbox -Identity $identity -Type shared
  Set-MsolUserLicense -UserPrincipalName "$identity@yourdomain.com" -RemoveLicenses "<Your License SKU here>"
  
- function Approve-MobileDevice
+function Approve-MobileDevice
 {$identity = Read-Host "Enter username, such as bob.joe"
 Get-MobileDevice -Mailbox $identity | fl FriendlyName, Identity, DeviceAccessState, DeviceID 
 "Copy the the DeviceId of the quarantined phone for the next part"
