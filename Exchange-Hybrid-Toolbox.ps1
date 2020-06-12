@@ -13,7 +13,10 @@ Import-PSSession $exchangeSession -DisableNameChecking -AllowClobber
 
 Connect-MsolService
 
+#This Run-Toolbox function is here so that the script does not reconnect to all the powershell sessions once they are already open. So far I can only get this
+#to work in powershell ISE. Regular powershell closes/stops after Connect-Msolservice. 
 function Run-Toolbox {
+
 function Create-User
 {
     #Populate Variables used in the new user creation. This is based on how we structure our names, and how we have our OU's broken up. You will have to edit this to your needs
