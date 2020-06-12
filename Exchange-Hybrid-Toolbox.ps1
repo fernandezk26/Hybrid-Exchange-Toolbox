@@ -58,7 +58,7 @@ function ReEnable-UserAccess
 {$identity = Read-Host "Enter the username of the persons mailbox you would like to convert to shared"
  Set-RemoteMailbox -Identity $identity -Type regular
  Set-MsolUserLicense -UserPrincipalName "$identity@yourdomain.com" -AddLicenses "<Your License SKU here>"
- Disable-OOO
+ Set-MailboxAutoReplyConfiguration -Identity $identity -AutoReplyState Disabled
  }
 
 function Disable-UserAccess
