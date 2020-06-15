@@ -19,7 +19,7 @@ function Run-Toolbox {
 
 function Create-User
 {
-    #Populate Variables used in the new user creation. This is based on how we structure our names, and how we have our OU's broken up. You will have to edit this to your needs
+    #Populate Variables used in the new user creation. This is just an example of if you were to create your users in the firstName.lastName format
      $UserName = Read-Host 'Please enter the first name in the following format: Bob Joe'
      $Password = Read-Host 'Please enter the temporary password' -AsSecureString
      $FirstName,$LastName = $UserName.split(' ')
@@ -28,14 +28,14 @@ function Create-User
      $domain = '@yourdomain.com'
      $Email = $FirstName + '.' + $LastName + $domain
 
-      #Select Branch based on selection
+      #Select time zone based on selection (many organizations break OU's into time zones)
         $timeZone = Switch(Read-Host 'Type "1" if Eastern, "2" if Central, "3" if Pacific') {
         1 {$zone = "Eastern" ; break}
         2 {$zone = "Central" ; break}
         3 {$zone = "Pacific"; break}
     }   
      $branch = Read-Host 'Please enter the branch number'
-     $OU = 'wnsm.local/Branch Office/' + $zone + '/' + 'NSM' + $branch + '/Users'
+     $OU = 'yourdomain.local/Branch Office/' + $zone + '/' + $branch + '/Users'
 
     #Creates User AD account and O365 Mailbox in Exchange On Prem
     New-RemoteMailbox -Name $UserName -FirstName $FirstName -LastName $LastName -DisplayName $DisplayName -SamAccountName $SamAccountName -Confirm:$false -PrimarySmtpAddress $Email -Password $Password -UserPrincipalName $Email -OnPremisesOrganizationalUnit $OU -ResetPasswordOnNextLogon $true
