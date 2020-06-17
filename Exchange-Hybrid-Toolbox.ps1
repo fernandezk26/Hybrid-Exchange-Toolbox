@@ -92,15 +92,30 @@ $trustee = Read-Host "Enter the username of the person you want removed, firstNa
 Remove-MailboxPermission -Identity $identity -User $trustee -AccessRights FullAccess
 }
 
-Switch(Read-Host 'Select "1" if you would like to create a new on-Prem O365 mailbox,
-       "2" to enable OOO for a user, 
-       "3" to disable OOO for a user, `
-       "4" to disable user access (convert mailbox to shared and remove E3 license,
-       "5" to re-enable user access (Convert mailbox to regular and assign E3 license),
-       "6" to approve a mobile device,
-       "7" to delegate mailbox
-       "8" to remove delegated mailbox permissions
-       "9" to exit') {
+Switch(Read-Host 'Select from the following options: 
+_________________________________________________________________________________________________
+
+       1. Create a new on-Prem O365 mailbox
+
+       2. Enable OOO for a user
+        
+       3. Disable OOO for a user
+
+       4. Disable user access (convert mailbox to shared and remove E3 license
+
+       5. Enable user access (Convert mailbox to regular and assign E3 license)
+
+       6. Approve a mobile device
+
+       7. Delegate mailbox
+
+       8. Remove delegated mailbox permissions
+
+       9. Exit
+_________________________________________________________________________________________________ 
+      
+       Selection
+       ===>') {
 
    1{Create-User}
    2{Enable-OOO}
