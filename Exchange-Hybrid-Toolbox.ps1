@@ -101,7 +101,7 @@ ________________________________________________________________________________
         
        3. Disable OOO for a user
 
-       4. Disable user access (convert mailbox to shared and remove E3 license
+       4. Disable user access (convert mailbox to shared and remove E3 license)
 
        5. Enable user access (Convert mailbox to regular and assign E3 license)
 
