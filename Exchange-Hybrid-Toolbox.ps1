@@ -23,7 +23,8 @@ function Run-Toolbox {
 
 function Create-User
 {
-    #Populate Variables used in the new user creation. This is just an example of if you were to create your users in the firstName.lastName format
+    #Populate Variables used in the new user creation, you will have to edit some of this for your own company needs. We use this naming convention as do many
+    #companies I have worked at, but yours may be different. For the OU, we use time zones, etc. Yours may be different.
      $UserName = Read-Host 'Please enter the first name in the following format: Bob Joe'
      $Password = Read-Host 'Please enter the temporary password' -AsSecureString
      $FirstName,$LastName = $UserName.split(' ')
@@ -31,18 +32,28 @@ function Create-User
      $SamAccountName = $firstName + '.' + $lastName
      $domain = '@yourdomain.com'
      $Email = $FirstName + '.' + $LastName + $domain
+     $title = Read-Host "Please enter user Title"
+     $branch = Read-Host "Please enter the branch number here"
+     $Description = $Branch + ' / ' + $title
+     $OU = Get-ADOrganizationalUnit -Filter 'Name -like $branch' | select distinguishedName -ExpandProperty distinguishedname
 
-      #Select time zone based on selection (many organizations break OU's into time zones)
-        $timeZone = Switch(Read-Host 'Type "1" if Eastern, "2" if Central, "3" if Pacific') {
-        1 {$zone = "Eastern" ; break}
-        2 {$zone = "Central" ; break}
-        3 {$zone = "Pacific"; break}
-    }   
-     $branch = Read-Host 'Please enter the branch number'
-     $OU = 'yourdomain.local/Branch Office/' + $zone + '/' + $branch + '/Users'
+    #Creates User AD account and O365 Mailbox On prem first, which later syncs to O365
+    New-RemoteMailbox -Name $DisplayName -FirstName $FirstName -LastName $LastName -DisplayName $DisplayName -SamAccountName $SamAccountName -Confirm:$false -PrimarySmtpAddress $Email -Password $Password -UserPrincipalName $Email -ResetPasswordOnNextLogon $true
+    
+    #There are sometimes delays from our sync from Exchange on prem to AD, so I put a 30 second timer just in case.
+    Start-Sleep -Seconds 30
 
-    #Creates User AD account and O365 Mailbox in Exchange On Prem
-    New-RemoteMailbox -Name $UserName -FirstName $FirstName -LastName $LastName -DisplayName $DisplayName -SamAccountName $SamAccountName -Confirm:$false -PrimarySmtpAddress $Email -Password $Password -UserPrincipalName $Email -OnPremisesOrganizationalUnit $OU -ResetPasswordOnNextLogon $true
+    #manipulate AD object after allowing 30 seconds to sync, how long it typically takes our environment to sync. Your replication may be faster.
+    #We have core groups, but you could also make this "smarter" by using If statements to apply groups based on title/description.
+    Add-ADGroupMember -identity Group1 -Members $SamAccountName
+    Add-ADGroupMember -identity "Group 3" -Members $SamAccountName
+
+    #Move to OU, first get the Root OU from user, then specify the target OU. Our OU's have a "Users" sub folder so I added that to the $TargetOU
+     $CN = get-aduser -identity $samAccountName -properties DistinguishedName | Select distinguishedname -expandproperty distinguishedName
+     $TargetOU = Get-ADOrganizationalUnit -Filter 'Name -like $branch' | select distinguishedname -ExpandProperty distinguishedname 
+     $TargetOU = "OU=Users," + $TargetOU
+     Set-ADUser -Identity $SamAccountName -Description $description -Title $title 
+     Move-ADObject -Identity $CN -TargetPath $TargetOU
 }
 
 function Enable-OOO {
