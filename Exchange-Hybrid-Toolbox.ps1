@@ -106,7 +106,7 @@ Remove-MailboxPermission -Identity $identity -User $trustee -AccessRights FullAc
 Switch(Read-Host 'Select from the following options: 
 _________________________________________________________________________________________________
 
-       1. Create a new on-Prem O365 mailbox
+       1. Create a New User (on Prem, syncs to O365)
 
        2. Enable OOO for a user
         
