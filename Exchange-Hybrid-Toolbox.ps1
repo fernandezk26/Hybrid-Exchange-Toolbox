@@ -47,12 +47,12 @@ function Create-User
     #We have core groups, but you could also make this "smarter" by using If statements to apply groups based on title/description.
     Add-ADGroupMember -identity Group1 -Members $SamAccountName
     Add-ADGroupMember -identity "Group 3" -Members $SamAccountName
+    Set-ADUser -Identity $SamAccountName -Description $description -Title $title 
 
     #Move to OU, first get the Root OU from user, then specify the target OU. Our OU's have a "Users" sub folder so I added that to the $TargetOU
      $CN = get-aduser -identity $samAccountName -properties DistinguishedName | Select distinguishedname -expandproperty distinguishedName
      $TargetOU = Get-ADOrganizationalUnit -Filter 'Name -like $branch' | select distinguishedname -ExpandProperty distinguishedname 
      $TargetOU = "OU=Users," + $TargetOU
-     Set-ADUser -Identity $SamAccountName -Description $description -Title $title 
      Move-ADObject -Identity $CN -TargetPath $TargetOU
 }
 
