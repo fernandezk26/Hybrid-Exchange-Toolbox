@@ -88,9 +88,15 @@ Start-sleep -seconds 15
 #Convert back to normal mailbox
 Set-RemoteMailbox -Identity $username -Type regular
 Set-MailboxAutoReplyConfiguration -Identity $username -AutoReplyState Disabled
- 
-#Disabled the set-MSOL since our AD licenses sync to O365. Kept in case I ever need it.
-#Set-MsolUserLicense -UserPrincipalName "$identity@nsm-seating.com" -AddLicenses "nsmseating:ENTERPRISEPACK"
+
+#adding default 0365 license back
+Set-MsolUserLicense -UserPrincipalName "$identity@nsm-seating.com" -AddLicenses "yourdomain:ENTERPRISEPACK"
+
+#adding additional mobile license if title matches
+ $title = get-aduser -identity $username -properties title | select title -expandproperty title
+ if($title -match "ATP" -or $title -match "RTS") {
+ Set-MsolUserLicense -UserPrincipalName "$username@nsm-seating.com" -AddLicenses "nsmseating:ENTERPRISE_MOBILE"
+ }
 }
 
 #I just made this quick function just in case I needed it. usually user access is disabled far before it gets to me.
