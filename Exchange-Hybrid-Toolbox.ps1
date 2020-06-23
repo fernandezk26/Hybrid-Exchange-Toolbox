@@ -70,13 +70,30 @@ Set-MailboxAutoReplyConfiguration -Identity $identity -AutoReplyState Disabled
 #You will have to get your own license SKU's by running the Get-MsolAccountSku command. From there you can specify which licenses you would like to remove
 #This applies to the EnableUserAccess and Disable-UserAccessfunctions
 
-function ReEnable-UserAccess {
-$identity = Read-Host "Enter the username of the persons mailbox you would like to convert to shared"
-Set-RemoteMailbox -Identity $identity -Type regular
-Set-MsolUserLicense -UserPrincipalName "$identity@yourdomain.com" -AddLicenses "<Your License SKU here>"
-Set-MailboxAutoReplyConfiguration -Identity $identity -AutoReplyState Disabled
+#At our organization, admins disable user access by disabling the AD account, convert the mailbox to shared, and remove any groups/licenses
+#We laid off people due to Covid, so we had to eventually enable their accounts again. This function makes that easy (instead of going to 3 places)
+function ReEnable-UserAccess{
+$username = Read-Host "Enter username of the person you would like to re-enable"
+Enable-ADAccount -Identity $username
+
+#older versions of exchange have an issue where the RemoteRecipientType changes to "Migrated" when converted to shared. This manually fixes that in the AD object.
+set-aduser $username -replace @{msExchRemoteRecipientTYpe="1"} 
+#recipient type of 1 = ProvisionMailbox
+
+#Change this to match your groups that were removed if applicable
+Add-ADGroupMember -Identity Group1 -Members $username
+Add-ADGroupMember -Identity "Group 2" -Members $username
+Start-sleep -seconds 15
+ 
+#Convert back to normal mailbox
+Set-RemoteMailbox -Identity $username -Type regular
+Set-MailboxAutoReplyConfiguration -Identity $username -AutoReplyState Disabled
+ 
+#Disabled the set-MSOL since our AD licenses sync to O365. Kept in case I ever need it.
+#Set-MsolUserLicense -UserPrincipalName "$identity@nsm-seating.com" -AddLicenses "nsmseating:ENTERPRISEPACK"
 }
 
+#I just made this quick function just in case I needed it. usually user access is disabled far before it gets to me.
 function Disable-UserAccess {
 $identity = Read-Host "Enter the username of the persons mailbox you would like to convert to shared"
 Set-RemoteMailbox -Identity $identity -Type shared
